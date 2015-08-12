@@ -6,7 +6,9 @@ var Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-  this.route('create-record');
+  this.route('create-record', function() {
+    this.route('find-record', {path: 'find-record/:person_id'});
+  });
 });
 
 export default Router;

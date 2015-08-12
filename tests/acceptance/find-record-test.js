@@ -13,10 +13,12 @@ module('Acceptance | find record', {
 });
 
 test('find-record works', function(assert) {
-  visit('/find-record');
+  visit('/create-record');
+  click('#create-record');
+  click('a:contains("Dummy")');
 
   andThen(function() {
-    assert.equal(find('#find-record p:first').text(), 'Dummy');
-    assert.equal(find('#find-record p:last').text(), '20');
+    assert.equal(find('#record-name').text(), 'Dummy');
+    assert.equal(find('#record-age').text(), '20');
   });
 });

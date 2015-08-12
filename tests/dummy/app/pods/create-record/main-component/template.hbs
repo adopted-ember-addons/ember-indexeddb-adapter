@@ -6,9 +6,10 @@
   <ul>
     {{#each people as |person|}}
       <li>
-        <!-- {{#link-to "find-record" person.id}}{{person.name}}{{/link-to}} -->
-        <a href="#">{{person.name}}</a>
+        {{#link-to "create-record.find-record" person.id}}{{person.name}}{{/link-to}}
       </li>
     {{/each}}
   </ul>
 </section>
+
+{{outlet}}
