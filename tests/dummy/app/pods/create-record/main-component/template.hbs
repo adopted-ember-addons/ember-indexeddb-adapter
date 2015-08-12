@@ -1,2 +1,14 @@
-<button id="create-record" {{action "createRecord"}}>Create dummy record</button>
-<p id="status-message">{{statusMessage}}</p>
+<section>
+  <button id="create-record" {{action "createRecord"}}>Create dummy record</button>
+  <p id="status-message">{{statusMessage}}</p>
+</section>
+<section>
+  <ul>
+    {{#each people as |person|}}
+      <li>
+        <!-- {{#link-to "find-record" person.id}}{{person.name}}{{/link-to}} -->
+        <a href="#">{{person.name}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</section>

@@ -105,7 +105,6 @@ export default DS.Adapter.extend({
    * param {object} store DS.Store
    * param {object} type DS.Model
    * param {string} id ID
-   * param {object} snapshot DS.Snapshot
    */
   findRecord(store, type, id) {
     let modelName = type.modelName;
@@ -131,4 +130,37 @@ export default DS.Adapter.extend({
       });
     });
   },
+
+  /**
+   * Find all records
+   * param {object} store DS.Store
+   * param {object} type DS.Model
+   */
+  findAll(store, type) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = [];
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.openCursor();
+
+        request.onsuccess = function(event) {
+          let cursor = event.target.result;
+
+          if (cursor) {
+            data.push(cursor.value);
+            cursor.continue();
+          } else {
+            Ember.run(null, resolve, data);
+          }
+        };
+        
+        request.onerror = function(event) {
+          console.log('IndexedDB error: ' + event.target.errorCode);
+          db.close();
+          Ember.run(null, reject, event);
+        };
+      });
+    });
+  }
 });
