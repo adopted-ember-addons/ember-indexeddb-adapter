@@ -75,26 +75,23 @@ export default DS.Adapter.extend({
    * param {object} snapshot DS.Snapshot
    */
   createRecord(store, type, snapshot) {
-    let data = this.serialize(snapshot, {includeId: true});
-    let modelName = type.modelName;
-
     return new Ember.RSVP.Promise((resolve, reject) => {
       this.openDatabase().then(db => {
-        let transaction = db.transaction([modelName], 'readwrite');
-        let objectStore = transaction.objectStore(modelName);
-        let request = null;
-
-        db.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
-          db.close();
-          Ember.run(null, reject, event);
-        };
-
-        request = objectStore.add(data);
+        let data = this.serialize(snapshot, {includeId: true});
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName], 'readwrite').
+            objectStore(modelName);
+        let request = objectStore.add(data);
 
         request.onsuccess = function() {
           db.close();
           Ember.run(null, resolve, data);
+        };
+
+        request.onerror = function(event) {
+          console.log('IndexedDB error: ' + event.target.errorCode);
+          db.close();
+          Ember.run(null, reject, event);
         };
       });
     });
@@ -107,25 +104,21 @@ export default DS.Adapter.extend({
    * param {string} id ID
    */
   findRecord(store, type, id) {
-    let modelName = type.modelName;
-
     return new Ember.RSVP.Promise((resolve, reject) => {
       this.openDatabase().then(db => {
-        let transaction = db.transaction([modelName]);
-        let objectStore = transaction.objectStore(modelName);
-        let request = null;
-
-        db.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
-          db.close();
-          Ember.run(null, reject, event);
-        };
-
-        request = objectStore.get(id);
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.get(id);
 
         request.onsuccess = function() {
           db.close();
           Ember.run(null, resolve, request.result);
+        };
+
+        request.onerror = function(event) {
+          console.log('IndexedDB error: ' + event.target.errorCode);
+          db.close();
+          Ember.run(null, reject, event);
         };
       });
     });
