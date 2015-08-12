@@ -162,5 +162,38 @@ export default DS.Adapter.extend({
         };
       });
     });
-  }
+  },
+
+  /**
+   * Update record
+   * param {object} store DS.Store
+   * param {object} type DS.Model class of the record
+   * param {object} snapshot DS.Snapshot
+   */
+  updateRecord(store, type, snapshot) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = this.serialize(snapshot, {includeId: true});
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName], 'readwrite').
+            objectStore(modelName);
+        let request = objectStore.get(snapshot.id);
+
+        request.onsuccess = function() {
+          let requestUpdate = objectStore.put(data);
+
+          requestUpdate.onsuccess = function() {
+            db.close();
+            Ember.run(null, resolve, data);
+          };
+
+          requestUpdate.onerror = function(event) {
+            console.log('IndexedDB error: ' + event.target.errorCode);
+            db.close();
+            Ember.run(null, reject, event);
+          };
+        };
+      });
+    });
+  },
 });
