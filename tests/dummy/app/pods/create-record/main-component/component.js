@@ -12,8 +12,8 @@ export default Ember.Component.extend({
      */
     createRecord() {
       this.get('store').createRecord('person', {
-        name: 'Dummy',
-        age: 20
+        name: this.$('input[type="text"]').val(),
+        age: parseInt(this.$('input[type="number"]').val())
       }).save().then(() => this.set('statusMessage', 'Create record success!'));
     }
   }

@@ -12,6 +12,13 @@ export default Ember.Component.extend({
     updateRecord() {
       this.set('person.age', 25);
       this.attrs.person.save();
+    },
+
+    /**
+     * Delete dummy record
+     */
+    deleteRecord() {
+      this.attrs.person.destroyRecord();
     }
   }
 });

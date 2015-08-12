@@ -189,4 +189,33 @@ export default DS.Adapter.extend({
       });
     });
   },
+
+  /**
+   * Delete record
+   * param {object} store DS.Store
+   * param {object} type DS.Model class of the record
+   * param {object} snapshot DS.Snapshot
+   */
+  deleteRecord(store, type, snapshot) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = this.serialize(snapshot, {includeId: true});
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName], 'readwrite').
+            objectStore(modelName);
+        let request = objectStore.delete(snapshot.id);
+
+        request.onsuccess = function() {
+          db.close();
+          Ember.run(null, resolve, data);
+        };
+
+        request.onerror = function() {
+          console.log('IndexedDB error: ' + event.target.errorCode);
+          db.close();
+          Ember.run(null, reject, event);
+        };
+      });
+    });
+  }
 });
