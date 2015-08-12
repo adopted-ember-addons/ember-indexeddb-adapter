@@ -9,6 +9,7 @@ Router.map(function() {
   this.route('create-record', function() {
     this.route('find-record', {path: 'find-record/:person_id'});
   });
+  this.route('query-record');
 });
 
 export default Router;

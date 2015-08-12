@@ -217,5 +217,55 @@ export default DS.Adapter.extend({
         };
       });
     });
-  }
+  },
+
+  /**
+   * TODO: See if using index is feasible
+   *
+   * Find record by it's ID
+   * param {object} store DS.Store
+   * param {object} type DS.Model
+   * param {object} query Query object
+   */
+  queryRecord(store, type, query) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let modelName = type.modelName;
+        let queryKeys = Object.keys(query);
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.openCursor();
+
+        request.onsuccess = function(event) {
+          let cursor = event.target.result;
+
+          if (cursor) {
+            let isQueryKeyMatchCount = 0;
+
+            for (let key of queryKeys) {
+              if (cursor.value[key] === query[key]) {
+                isQueryKeyMatchCount++;
+              }
+            }
+
+            if (isQueryKeyMatchCount === queryKeys.length) {
+              console.log(JSON.stringify(cursor.value));
+              db.close();
+              Ember.run(null, resolve, cursor.value);
+            } else {
+              cursor.continue();
+            }
+          } else {
+            db.close();
+            Ember.run(null, resolve, null);
+          }
+        };
+        
+        request.onerror = function(event) {
+          console.log('IndexedDB error: ' + event.target.errorCode);
+          db.close();
+          Ember.run(null, reject, event);
+        };
+      });
+    });
+  },
 });
