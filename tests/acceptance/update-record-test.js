@@ -14,12 +14,15 @@ module('Acceptance | update record', {
 
 test('update-record works', function(assert) {
   visit('/create-record');
+
+  fillIn('input[type="text"]', 'Update');
+  fillIn('input[type="number"]', '20');
   click('#create-record');
-  click('a:contains("Dummy")');
+  click('a:contains("Update")');
   click('#update-record');
 
   andThen(function() {
-    assert.equal(find('#record-name').text(), 'Dummy');
+    assert.equal(find('#record-name').text(), 'Update');
     assert.equal(find('#record-age').text(), '25');
   });
 });

@@ -15,9 +15,11 @@ module('Acceptance | find all', {
 test('find-all works', function(assert) {
   visit('/create-record');
 
+  fillIn('input[type="text"]', 'Find All');
+  fillIn('input[type="number"]', '20');
   click('#create-record');
 
   andThen(function() {
-    assert.ok(find('a:contains("Dummy")').length > 0);
+    assert.ok(find('a:contains("Find All")').length > 0);
   });
 });

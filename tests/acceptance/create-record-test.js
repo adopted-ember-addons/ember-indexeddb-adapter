@@ -12,9 +12,11 @@ module('Acceptance | create record', {
   }
 });
 
-test('find-record works', function(assert) {
+test('create-record works', function(assert) {
   visit('/create-record');
 
+  fillIn('input[type="text"]', 'Create');
+  fillIn('input[type="number"]', '20');
   click('#create-record');
 
   andThen(function() {
