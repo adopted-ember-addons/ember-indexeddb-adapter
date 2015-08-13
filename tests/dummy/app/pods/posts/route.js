@@ -5,7 +5,7 @@ export default Ember.Route.extend({
     return Ember.RSVP.hash({
       posts: this.store.findAll('post'),
       queryPost: this.store.queryRecord(
-          'post', {title: 'Dummy 3', body: 'Post about dummy 3'})
+          'post', {title: 'Dummy 3', body: 'Dummy'})
     });
   },
 
