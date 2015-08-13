@@ -18,4 +18,15 @@
   </ul>
 </section>
 
+<section id="query">
+  <ul>
+    {{#each queryPosts as |post|}}
+      <li>
+        <p>{{post.title}}</p>
+        <p>{{post.body}}</p>
+      </li>
+    {{/each}}
+  </ul>
+</section>
+
 <button {{action "createPost"}}>New Post</button>
