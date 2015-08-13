@@ -3,6 +3,7 @@
 This is an adapter for Ember Data that lets you store your application data offline using IndexedDB.
 
 To know more about Ember Data, click [here](https://github.com/emberjs/data)
+
 To know more about IndexedDB, click [here](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 
 ## Compatibility
