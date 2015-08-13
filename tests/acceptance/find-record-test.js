@@ -8,6 +8,7 @@ module('Acceptance | find record', {
   },
 
   afterEach: function() {
+    clearObjectStore('user');
     clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }

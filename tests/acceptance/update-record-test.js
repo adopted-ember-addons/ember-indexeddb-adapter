@@ -8,6 +8,7 @@ module('Acceptance | update record', {
   },
 
   afterEach: function() {
+    clearObjectStore('user');
     clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
@@ -22,7 +23,7 @@ test('update-record works', function(assert) {
   click('button:contains("Update Post")');
 
   andThen(function() {
-    assert.equal(find('p:first').text(), 'Dummy Post');
-    assert.equal(find('p:last').text(), 'Dummy');
+    assert.equal(find('#find-record p:first').text(), 'Dummy Post');
+    assert.equal(find('#find-record p:last').text(), 'Dummy');
   });
 });

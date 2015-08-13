@@ -1,10 +1,13 @@
 <section id="find-all">
   <ul>
     {{#each posts as |post|}}
-      {{#link-to "posts.post" post.id}}
-        <p>{{post.title}}</p>
-        <p>{{post.body}}</p>
-      {{/link-to}}
+      <li>
+        <div><p>{{post.user.name}}</p></div>
+        {{#link-to "posts.post" post.id}}
+          <p>{{post.title}}</p>
+          <p>{{post.body}}</p>
+        {{/link-to}}
+      </li>
     {{/each}}
   </ul>
 </section>
