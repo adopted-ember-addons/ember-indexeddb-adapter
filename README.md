@@ -1,25 +1,56 @@
-# Ember-indexeddb-adapter
+# Ember Data IndexedDB Adapter
 
-This README outlines the details of collaborating on this Ember addon.
+This is an adapter for Ember Data that lets you store your application data offline using IndexedDB.
 
-## Installation
+* To know more about Ember Data, click [here](https://github.com/emberjs/data).
+* To know more about IndexedDB, click [here](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+## Compatibility
 
-## Running
+This adapter aligns itself with the latest [Ember CLI](http://www.ember-cli.com/) release
+and it's corresponding Ember Data version.
 
-* `ember server`
-* Visit your app at http://localhost:4200.
+As of the moment, the latest version is compatible with Ember CLI v1.13.8.
 
-## Running Tests
+## Usage
 
-* `ember test`
-* `ember test --server`
+To install this addon using Ember CLI, use this command:
 
-## Building
+```bash
+$ ember install ember-indexeddb-adapter
+```
 
-* `ember build`
+After installing the addon, generate the app adapter by using this command:
 
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+```bash
+$ ember generate adapter application
+```
+
+We then override the adapter similar to this:
+
+```js
+//app/adapters/application.js
+import IndexedDBAdapter from 'ember-indexeddb-adapter/adapters/indexeddb';
+
+export default IndexedDBAdapter.extend({
+  /**
+   * Name of your IndexedDB
+   * @type {string}
+   */
+  dbName: 'DummyDatabase',
+
+  /**
+   * Version of your IndexedDB.
+   * If you have an existing IDB and you want to update it's schema, the value
+   * of this variable should be higher than the version of your existing IDB.
+   * @type {number}
+   */
+  version: 1,
+
+  /**
+   * Array containing the name of your models.
+   * @type {Array.<string>}
+   */
+  models: ['user', 'post']
+});
+```
