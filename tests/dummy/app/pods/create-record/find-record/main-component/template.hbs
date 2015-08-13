@@ -1,6 +1,0 @@
-{{#with person as |person|}}
-  <p id="record-name">{{person.name}}</p>
-  <p id="record-age">{{person.age}}</p>
-{{/with}}
-<button id="update-record" {{action "updateRecord"}}>Update Record</button>
-{{#link-to "create-record"}}<div id="delete-record" {{action "deleteRecord"}}>Delete Record</div>{{/link-to}}

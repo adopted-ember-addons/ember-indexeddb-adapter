@@ -8,18 +8,18 @@ module('Acceptance | create record', {
   },
 
   afterEach: function() {
+    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
 });
 
 test('create-record works', function(assert) {
-  visit('/create-record');
+  visit('/posts');
 
-  fillIn('input[type="text"]', 'Create');
-  fillIn('input[type="number"]', '20');
-  click('#create-record');
+  click('button:contains("New Post")');
 
   andThen(function() {
-    assert.equal(find('#status-message').text(), 'Create record success!');
+    assert.ok(find('#find-all a').length === 4);
+    assert.ok(find('#find-all a p:contains("New Dummy")').length > 0);
   });
 });

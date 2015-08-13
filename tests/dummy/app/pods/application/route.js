@@ -2,19 +2,19 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   init() {
-    this.store.createRecord('person', {
-      name: 'Dummy 1',
-      age: 20
+    this.store.createRecord('post', {
+      title: 'Dummy 1',
+      body: 'Post about dummy 1'
     }).save();
 
-    this.store.createRecord('person', {
-      name: 'Dummy 2',
-      age: 25
+    this.store.createRecord('post', {
+      title: 'Dummy 2',
+      body: 'Post about dummy 2'
     }).save();
 
-    this.store.createRecord('person', {
-      name: 'Dummy 3',
-      age: 20
+    this.store.createRecord('post', {
+      title: 'Dummy 3',
+      body: 'Post about dummy 3'
     }).save();
   }
 });

@@ -8,6 +8,7 @@ module('Acceptance | delete record', {
   },
 
   afterEach: function() {
+    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
 });
@@ -15,15 +16,13 @@ module('Acceptance | delete record', {
 test('delete-record works', function(assert) {
   assert.expect(2);
 
-  visit('/create-record');
-  fillIn('input[type="text"]', 'Delete');
-  fillIn('input[type="number"]', '20');
-  click('#create-record');
-  click('a:contains("Delete")');
-  click('#delete-record');
+  visit('/posts');
 
+  click('a:contains("Dummy 1")');
+  click('div:contains("Delete Post")');
+  
   andThen(function() {
-    assert.equal(currentURL(), '/create-record');
-    assert.ok(find('a:contains("Delete")').length === 0);
+    assert.equal(currentURL(), '/posts');
+    assert.ok(find('#find-all a:contains("Dummy 1")').length === 0);
   });
 });

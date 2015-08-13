@@ -1,0 +1,21 @@
+<section id="find-all">
+  <ul>
+    {{#each posts as |post|}}
+      {{#link-to "posts.post" post.id}}
+        <p>{{post.title}}</p>
+        <p>{{post.body}}</p>
+      {{/link-to}}
+    {{/each}}
+  </ul>
+</section>
+
+<section id="query-record">
+  <ul>
+    <li>
+      <p>{{queryPost.title}}</p>
+      <p>{{queryPost.body}}</p>
+    </li>
+  </ul>
+</section>
+
+<button {{action "createPost"}}>New Post</button>

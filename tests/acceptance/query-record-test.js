@@ -8,6 +8,7 @@ module('Acceptance | query record', {
   },
 
   afterEach: function() {
+    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
 });
@@ -15,10 +16,10 @@ module('Acceptance | query record', {
 test('query record works', function(assert) {
   assert.expect(2);
 
-  visit('/query-record');
+  visit('/posts');
 
   andThen(function() {
-    assert.ok(find('li').length === 1);
-    assert.equal(find('li p:first').text(), 'Dummy 3');
+    assert.ok(find('#query-record li').length === 1);
+    assert.equal(find('#query-record li p:first').text(), 'Dummy 3');
   });
 });

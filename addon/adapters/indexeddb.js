@@ -36,7 +36,7 @@ export default DS.Adapter.extend({
 
       for (let model of self.get('models')) {
         if (!db.objectStoreNames.contains(model)) {
-          db.createObjectStore('person', {keyPath: 'id'});
+          db.createObjectStore(model, {keyPath: 'id'});
         }
       }
     };
@@ -248,7 +248,6 @@ export default DS.Adapter.extend({
             }
 
             if (isQueryKeyMatchCount === queryKeys.length) {
-              console.log(JSON.stringify(cursor.value));
               db.close();
               Ember.run(null, resolve, cursor.value);
             } else {

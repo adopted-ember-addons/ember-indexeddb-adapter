@@ -8,20 +8,20 @@ module('Acceptance | find record', {
   },
 
   afterEach: function() {
+    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
 });
 
 test('find-record works', function(assert) {
-  visit('/create-record');
+  assert.expect(2);
+  
+  visit('/posts');
 
-  fillIn('input[type="text"]', 'Find Record');
-  fillIn('input[type="number"]', '20');
-  click('#create-record');
-  click('a:contains("Find Record")');
+  click('a:contains("Dummy 1")');
 
   andThen(function() {
-    assert.equal(find('#record-name').text(), 'Find Record');
-    assert.equal(find('#record-age').text(), '20');
+    assert.equal(find('#find-record p:first').text(), 'Dummy 1');
+    assert.equal(find('#find-record p:last').text(), 'Post about dummy 1');
   });
 });

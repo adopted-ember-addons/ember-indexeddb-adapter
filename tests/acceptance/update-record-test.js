@@ -8,21 +8,21 @@ module('Acceptance | update record', {
   },
 
   afterEach: function() {
+    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
   }
 });
 
 test('update-record works', function(assert) {
-  visit('/create-record');
+  assert.expect(2);
 
-  fillIn('input[type="text"]', 'Update');
-  fillIn('input[type="number"]', '20');
-  click('#create-record');
-  click('a:contains("Update")');
-  click('#update-record');
+  visit('/posts');
+
+  click('a:contains("Dummy 1")');
+  click('button:contains("Update Post")');
 
   andThen(function() {
-    assert.equal(find('#record-name').text(), 'Update');
-    assert.equal(find('#record-age').text(), '25');
+    assert.equal(find('p:first').text(), 'Dummy Post');
+    assert.equal(find('p:last').text(), 'Post about dummy 1');
   });
 });
