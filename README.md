@@ -21,7 +21,7 @@ To install this addon using Ember CLI, use this command:
 $ ember install ember-indexeddb-adapter
 ```
 
-After installing the addon, we'll generate the app adapter by using this command:
+After installing the addon, generate the app adapter by using this command:
 
 ```bash
 $ ember generate adapter application
