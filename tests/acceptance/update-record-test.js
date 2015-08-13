@@ -23,6 +23,6 @@ test('update-record works', function(assert) {
 
   andThen(function() {
     assert.equal(find('p:first').text(), 'Dummy Post');
-    assert.equal(find('p:last').text(), 'Post about dummy 1');
+    assert.equal(find('p:last').text(), 'Dummy');
   });
 });

@@ -22,6 +22,6 @@ test('find-record works', function(assert) {
 
   andThen(function() {
     assert.equal(find('#find-record p:first').text(), 'Dummy 1');
-    assert.equal(find('#find-record p:last').text(), 'Post about dummy 1');
+    assert.equal(find('#find-record p:last').text(), 'Dummy');
   });
 });
