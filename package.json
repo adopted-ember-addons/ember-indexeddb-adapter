@@ -1,7 +1,7 @@
 {
   "name": "ember-indexeddb-adapter",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember Data adapter for IndexedDB",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -15,7 +15,7 @@
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "Mikko Paderes",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.1.2",
