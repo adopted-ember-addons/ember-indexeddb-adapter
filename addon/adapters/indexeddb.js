@@ -44,6 +44,7 @@ export default DS.Adapter.extend({
 
   /**
    * Open IndexedDB
+   * return {promise} Promise that contains an IDBOpenDBRequest instance
    */
   openDatabase() {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -73,6 +74,7 @@ export default DS.Adapter.extend({
    * param {object} store DS.Store
    * param {object} type DS.Model class of the record
    * param {object} snapshot DS.Snapshot
+   * return {promise} Promise that contains the record
    */
   createRecord(store, type, snapshot) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -102,6 +104,7 @@ export default DS.Adapter.extend({
    * param {object} store DS.Store
    * param {object} type DS.Model
    * param {string} id ID
+   * return {promise} Promise that contains the record
    */
   findRecord(store, type, id) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -128,6 +131,7 @@ export default DS.Adapter.extend({
    * Find all records
    * param {object} store DS.Store
    * param {object} type DS.Model
+   * return {promise} Promise that contains the record
    */
   findAll(store, type) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -162,6 +166,7 @@ export default DS.Adapter.extend({
    * param {object} store DS.Store
    * param {object} type DS.Model class of the record
    * param {object} snapshot DS.Snapshot
+   * return {promise} Promise that contains the record
    */
   updateRecord(store, type, snapshot) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -195,6 +200,7 @@ export default DS.Adapter.extend({
    * param {object} store DS.Store
    * param {object} type DS.Model class of the record
    * param {object} snapshot DS.Snapshot
+   * return {promise} Promise that contains the record
    */
   deleteRecord(store, type, snapshot) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -222,10 +228,11 @@ export default DS.Adapter.extend({
   /**
    * TODO: See if using index is feasible
    *
-   * Find record by it's ID
+   * Find a record that matches the query
    * param {object} store DS.Store
    * param {object} type DS.Model
    * param {object} query Query object
+   * return {promise} Promise that contains the record
    */
   queryRecord(store, type, query) {
     return new Ember.RSVP.Promise((resolve, reject) => {
@@ -266,5 +273,5 @@ export default DS.Adapter.extend({
         };
       });
     });
-  },
+  }
 });
