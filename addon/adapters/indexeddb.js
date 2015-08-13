@@ -246,15 +246,15 @@ export default DS.Adapter.extend({
           let cursor = event.target.result;
 
           if (cursor) {
-            let isQueryKeyMatchCount = 0;
+            let queryKeyMatchCount = 0;
 
             for (let key of queryKeys) {
               if (cursor.value[key] === query[key]) {
-                isQueryKeyMatchCount++;
+                queryKeyMatchCount++;
               }
             }
 
-            if (isQueryKeyMatchCount === queryKeys.length) {
+            if (queryKeyMatchCount === queryKeys.length) {
               db.close();
               Ember.run(null, resolve, cursor.value);
             } else {
@@ -297,15 +297,15 @@ export default DS.Adapter.extend({
           let cursor = event.target.result;
 
           if (cursor) {
-            let isQueryKeyMatchCount = 0;
+            let queryKeyMatchCount = 0;
 
             for (let key of queryKeys) {
               if (cursor.value[key] === query[key]) {
-                isQueryKeyMatchCount++;
+                queryKeyMatchCount++;
               }
             }
 
-            if (isQueryKeyMatchCount === queryKeys.length) {
+            if (queryKeyMatchCount === queryKeys.length) {
               data.push(cursor.value);
             }
 
