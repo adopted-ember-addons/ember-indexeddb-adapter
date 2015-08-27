@@ -8,9 +8,8 @@ module('Acceptance | create record', {
   },
 
   afterEach: function() {
-    clearObjectStore('user');
-    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
+    window.indexedDB.deleteDatabase('DummyDatabase');
   }
 });
 
@@ -20,7 +19,11 @@ test('create-record works', function(assert) {
   click('button:contains("New Post")');
 
   andThen(function() {
-    assert.ok(find('#find-all a').length === 4);
-    assert.ok(find('#find-all a p:contains("New Dummy")').length > 0);
+    // Give 500ms for all promises to finish as an ugly workaround to avoid
+    // inFlight errors
+    Ember.run.later(() => {
+      assert.ok(find('#find-all a').length === 4);
+      assert.ok(find('#find-all a p:contains("New Dummy")').length > 0);
+    }, 500);
   });
 });

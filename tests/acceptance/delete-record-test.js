@@ -8,9 +8,8 @@ module('Acceptance | delete record', {
   },
 
   afterEach: function() {
-    clearObjectStore('user');
-    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
+    window.indexedDB.deleteDatabase('DummyDatabase');
   }
 });
 
@@ -23,7 +22,11 @@ test('delete-record works', function(assert) {
   click('div:contains("Delete Post")');
   
   andThen(function() {
-    assert.equal(currentURL(), '/posts');
-    assert.ok(find('#find-all a:contains("Dummy 1")').length === 0);
+    // Give 500ms for all promises to finish as an ugly workaround to avoid
+    // inFlight errors
+    Ember.run.later(() => {
+      assert.equal(currentURL(), '/posts');
+      assert.ok(find('#find-all a:contains("Dummy 1")').length === 0);
+    }, 500);
   });
 });
