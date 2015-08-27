@@ -15,6 +15,8 @@ This outlines the the details of collaborating on this Ember addon.
 
 ## Running Tests
 
+Tests might be slow due to the indexedDB being deleted after each run.
+
 * `ember test`
 * `ember test --server`
 

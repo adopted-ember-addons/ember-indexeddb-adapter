@@ -8,9 +8,8 @@ module('Acceptance | query', {
   },
 
   afterEach: function() {
-    clearObjectStore('user');
-    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
+    window.indexedDB.deleteDatabase('DummyDatabase');
   }
 });
 
@@ -20,8 +19,12 @@ test('query works', function(assert) {
   visit('/posts');
 
   andThen(function() {
-    assert.ok(find('#query li').length === 2);
-    assert.ok(find('#query p:contains("Dummy 1")').length > 0);
-    assert.ok(find('#query p:contains("Dummy 3")').length > 0);
+    // Give 500ms for all promises to finish as an ugly workaround to avoid
+    // inFlight errors
+    Ember.run.later(() => {
+      assert.ok(find('#query li').length === 2);
+      assert.ok(find('#query p:contains("Dummy 1")').length > 0);
+      assert.ok(find('#query p:contains("Dummy 3")').length > 0);
+    }, 500);
   });
 });

@@ -34,11 +34,11 @@ export default DS.Adapter.extend({
         console.log('IndexedDB error: ' + event.target.errorCode);
       };
 
-      for (let model of self.get('models')) {
+      self.get('models').forEach(model => {
         if (!db.objectStoreNames.contains(model)) {
           db.createObjectStore(model, {keyPath: 'id'});
         }
-      }
+      });
     };
   },
 
@@ -248,11 +248,11 @@ export default DS.Adapter.extend({
           if (cursor) {
             let queryKeyMatchCount = 0;
 
-            for (let key of queryKeys) {
+            queryKeys.forEach(key => {
               if (cursor.value[key] === query[key]) {
                 queryKeyMatchCount++;
               }
-            }
+            });
 
             if (queryKeyMatchCount === queryKeys.length) {
               db.close();
@@ -299,11 +299,11 @@ export default DS.Adapter.extend({
           if (cursor) {
             let queryKeyMatchCount = 0;
 
-            for (let key of queryKeys) {
+            queryKeys.forEach(key => {
               if (cursor.value[key] === query[key]) {
                 queryKeyMatchCount++;
               }
-            }
+            });
 
             if (queryKeyMatchCount === queryKeys.length) {
               data.push(cursor.value);

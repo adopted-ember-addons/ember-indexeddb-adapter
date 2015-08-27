@@ -1,9 +1,6 @@
-/* jshint unused:false */
-
 import Ember from 'ember';
 import Application from '../../app';
 import config from '../../config/environment';
-import clearObjectStore from './clear-object-store';
 
 export default function startApp(attrs) {
   var application;

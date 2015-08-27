@@ -8,9 +8,8 @@ module('Acceptance | find record', {
   },
 
   afterEach: function() {
-    clearObjectStore('user');
-    clearObjectStore('post');
     Ember.run(this.application, 'destroy');
+    window.indexedDB.deleteDatabase('DummyDatabase');
   }
 });
 
@@ -22,7 +21,11 @@ test('find-record works', function(assert) {
   click('a:contains("Dummy 1")');
 
   andThen(function() {
-    assert.equal(find('#find-record p:first').text(), 'Dummy 1');
-    assert.equal(find('#find-record p:last').text(), 'Dummy');
+    // Give 500ms for all promises to finish as an ugly workaround to avoid
+    // inFlight errors
+    Ember.run.later(() => {
+      assert.equal(find('#find-record p:first').text(), 'Dummy 1');
+      assert.equal(find('#find-record p:last').text(), 'Dummy');
+    }, 500);
   });
 });
