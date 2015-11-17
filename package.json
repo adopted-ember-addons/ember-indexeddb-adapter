@@ -1,6 +1,6 @@
 {
   "name": "ember-indexeddb-adapter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ember Data adapter for IndexedDB",
   "directories": {
     "doc": "doc",
