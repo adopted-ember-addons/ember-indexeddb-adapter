@@ -10,7 +10,7 @@ This is an adapter for Ember Data that lets you store your application data offl
 This adapter aligns itself with the latest [Ember CLI](http://www.ember-cli.com/) release
 and it's corresponding Ember Data version.
 
-As of the moment, the latest version is compatible with Ember CLI v1.13.8.
+As of the moment, the latest version is compatible with Ember CLI v1.13.12.
 
 ## Usage
 
