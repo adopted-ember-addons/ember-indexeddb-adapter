@@ -7,7 +7,7 @@
     "indexeddb",
     "ember-data"
   ],
-  "repository": "https://github.com/ember-adopted-addons/ember-indexeddb-adapter",
+  "repository": "https://github.com/adopted-ember-addons/ember-indexeddb-adapter",
   "license": "MIT",
   "contributors": [
     "Mikko Paderes",
