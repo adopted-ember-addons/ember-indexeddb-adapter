@@ -5,6 +5,12 @@
   "keywords": [
     "ember-addon",
     "indexeddb",
+    "indexeddb adapter",
+    "indexed db adapter",
+    "indexed-db adapter",
+    "offline",
+    "offline storage",
+    "offline storage adapter",
     "ember-data"
   ],
   "repository": "https://github.com/adopted-ember-addons/ember-indexeddb-adapter",
