@@ -5,12 +5,11 @@ This is an adapter for Ember Data that lets you store your application data offl
 * To know more about Ember Data, click [here](https://github.com/emberjs/data).
 * To know more about IndexedDB, click [here](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API).
 
-## Compatibility
+Compatibility
+------------------------------------------------------------------------------
 
-This adapter aligns itself with the latest [Ember CLI](http://www.ember-cli.com/) release
-and it's corresponding Ember Data version.
-
-As of the moment, the latest version is compatible with Ember CLI v1.13.12.
+* Ember.js v2.18 or above
+* Ember CLI v2.13 or above
 
 ## Usage
 
@@ -54,3 +53,14 @@ export default IndexedDBAdapter.extend({
   models: ['user', 'post']
 });
 ```
+
+Contributing
+------------------------------------------------------------------------------
+
+See the [Contributing](CONTRIBUTING.md) guide for details.
+
+
+License
+------------------------------------------------------------------------------
+
+This project is licensed under the [MIT License](LICENSE.md).
