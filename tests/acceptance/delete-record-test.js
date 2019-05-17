@@ -1,32 +1,28 @@
-import Ember from 'ember';
+import { click, findAll, currentURL, visit } from '@ember/test-helpers';
+import { run, later } from '@ember/runloop';
 import { module, test } from 'qunit';
-import startApp from '../../tests/helpers/start-app';
+import { setupApplicationTest } from 'ember-qunit';
 
-module('Acceptance | delete record', {
-  beforeEach: function() {
-    this.application = startApp();
-  },
+module('Acceptance | delete record', function(hooks) {
+  setupApplicationTest(hooks);
 
-  afterEach: function() {
-    Ember.run(this.application, 'destroy');
+  hooks.afterEach(function() {
     window.indexedDB.deleteDatabase('DummyDatabase');
-  }
-});
+  });
 
-test('delete-record works', function(assert) {
-  assert.expect(2);
+  test('delete-record works', async function(assert) {
+    assert.expect(2);
 
-  visit('/posts');
+    await visit('/posts');
 
-  click('a:contains("Dummy 1")');
-  click('div:contains("Delete Post")');
-  
-  andThen(function() {
+    await click('a:contains("Dummy 1")');
+    await click('div:contains("Delete Post")');
+
     // Give 500ms for all promises to finish as an ugly workaround to avoid
     // inFlight errors
-    Ember.run.later(() => {
+    later(() => {
       assert.equal(currentURL(), '/posts');
-      assert.ok(find('#find-all a:contains("Dummy 1")').length === 0);
+      assert.ok(findAll('#find-all a:contains("Dummy 1")').length === 0);
     }, 500);
   });
 });

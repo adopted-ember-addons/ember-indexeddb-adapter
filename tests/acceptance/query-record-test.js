@@ -1,29 +1,25 @@
-import Ember from 'ember';
+import { findAll, find, visit } from '@ember/test-helpers';
+import { run, later } from '@ember/runloop';
 import { module, test } from 'qunit';
-import startApp from '../../tests/helpers/start-app';
+import { setupApplicationTest } from 'ember-qunit';
 
-module('Acceptance | query record', {
-  beforeEach: function() {
-    this.application = startApp();
-  },
+module('Acceptance | query record', function(hooks) {
+  setupApplicationTest(hooks);
 
-  afterEach: function() {
-    Ember.run(this.application, 'destroy');
+  hooks.afterEach(function() {
     window.indexedDB.deleteDatabase('DummyDatabase');
-  }
-});
+  });
 
-test('query record works', function(assert) {
-  assert.expect(2);
+  test('query record works', async function(assert) {
+    assert.expect(2);
 
-  visit('/posts');
+    await visit('/posts');
 
-  andThen(function() {
     // Give 500ms for all promises to finish as an ugly workaround to avoid
     // inFlight errors
-    Ember.run.later(() => {
-      assert.ok(find('#query-record li').length === 1);
-      assert.equal(find('#query-record li p:first').text(), 'Dummy 3');
+    later(() => {
+      assert.ok(findAll('#query-record li').length === 1);
+      assert.dom(find('#query-record li p:first')).hasText('Dummy 3');
     }, 500);
   });
 });

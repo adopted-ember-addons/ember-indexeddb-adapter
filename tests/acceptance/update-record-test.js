@@ -1,32 +1,28 @@
-import Ember from 'ember';
+import { click, find, visit } from '@ember/test-helpers';
+import { run, later } from '@ember/runloop';
 import { module, test } from 'qunit';
-import startApp from '../../tests/helpers/start-app';
+import { setupApplicationTest } from 'ember-qunit';
 
-module('Acceptance | update record', {
-  beforeEach: function() {
-    this.application = startApp();
-  },
+module('Acceptance | update record', function(hooks) {
+  setupApplicationTest(hooks);
 
-  afterEach: function() {
-    Ember.run(this.application, 'destroy');
+  hooks.afterEach(function() {
     window.indexedDB.deleteDatabase('DummyDatabase');
-  }
-});
+  });
 
-test('update-record works', function(assert) {
-  assert.expect(2);
+  test('update-record works', async function(assert) {
+    assert.expect(2);
 
-  visit('/posts');
+    await visit('/posts');
 
-  click('a:contains("Dummy 1")');
-  click('button:contains("Update Post")');
+    await click('a:contains("Dummy 1")');
+    await click('button:contains("Update Post")');
 
-  andThen(function() {
     // Give 500ms for all promises to finish as an ugly workaround to avoid
     // inFlight errors
-    Ember.run.later(() => {
-      assert.equal(find('#find-record p:first').text(), 'Dummy Post');
-      assert.equal(find('#find-record p:last').text(), 'Dummy');
+    later(() => {
+      assert.dom(find('#find-record p:first')).hasText('Dummy Post');
+      assert.dom(find('#find-record p:last')).hasText('Dummy');
     }, 500);
   });
 });

@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { hash } from 'rsvp';
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
   model() {
-    return Ember.RSVP.hash({
+    return hash({
       posts: this.store.findAll('post'),
       queryPost: this.store.queryRecord(
           'post', {title: 'Dummy 3', body: 'Dummy'}),

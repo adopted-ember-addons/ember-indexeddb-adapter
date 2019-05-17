@@ -1,5 +1,6 @@
+import { run } from '@ember/runloop';
+import { Promise } from 'rsvp';
 import DS from 'ember-data';
-import Ember from 'ember';
 
 export default DS.Adapter.extend({
   /**
@@ -47,16 +48,16 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains an IDBOpenDBRequest instance
    */
   openDatabase() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let request = window.indexedDB.open(this.get('dbName'));
 
       request.onerror = function(event) {
         console.log('Unable to open IndexedDB');
-        Ember.run(null, reject, event);
+        run(null, reject, event);
       };
 
       request.onsuccess = function(event) {
-        Ember.run(null, resolve, event.target.result);
+        run(null, resolve, event.target.result);
       };
     });
   },
@@ -77,7 +78,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   createRecord(store, type, snapshot) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = this.serialize(snapshot, {includeId: true});
         let modelName = type.modelName;
@@ -87,13 +88,13 @@ export default DS.Adapter.extend({
 
         request.onsuccess = function() {
           db.close();
-          Ember.run(null, resolve, data);
+          run(null, resolve, data);
         };
 
         request.onerror = function(event) {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });
@@ -107,7 +108,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   findRecord(store, type, id) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
         let objectStore = db.transaction([modelName]).objectStore(modelName);
@@ -115,13 +116,13 @@ export default DS.Adapter.extend({
 
         request.onsuccess = function() {
           db.close();
-          Ember.run(null, resolve, request.result);
+          run(null, resolve, request.result);
         };
 
         request.onerror = function(event) {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });
@@ -134,7 +135,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   findAll(store, type) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
         let modelName = type.modelName;
@@ -148,14 +149,14 @@ export default DS.Adapter.extend({
             data.push(cursor.value);
             cursor.continue();
           } else {
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }
         };
         
         request.onerror = function(event) {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });
@@ -169,7 +170,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   updateRecord(store, type, snapshot) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = this.serialize(snapshot, {includeId: true});
         let modelName = type.modelName;
@@ -182,13 +183,13 @@ export default DS.Adapter.extend({
 
           requestUpdate.onsuccess = function() {
             db.close();
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           };
 
           requestUpdate.onerror = function(event) {
             console.log('IndexedDB error: ' + event.target.errorCode);
             db.close();
-            Ember.run(null, reject, event);
+            run(null, reject, event);
           };
         };
       });
@@ -203,7 +204,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   deleteRecord(store, type, snapshot) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = this.serialize(snapshot, {includeId: true});
         let modelName = type.modelName;
@@ -213,13 +214,13 @@ export default DS.Adapter.extend({
 
         request.onsuccess = function() {
           db.close();
-          Ember.run(null, resolve, data);
+          run(null, resolve, data);
         };
 
         request.onerror = function() {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });
@@ -235,7 +236,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the record
    */
   queryRecord(store, type, query) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
         let queryKeys = Object.keys(query);
@@ -256,20 +257,20 @@ export default DS.Adapter.extend({
 
             if (queryKeyMatchCount === queryKeys.length) {
               db.close();
-              Ember.run(null, resolve, cursor.value);
+              run(null, resolve, cursor.value);
             } else {
               cursor.continue();
             }
           } else {
             db.close();
-            Ember.run(null, resolve, null);
+            run(null, resolve, null);
           }
         };
         
         request.onerror = function(event) {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });
@@ -285,7 +286,7 @@ export default DS.Adapter.extend({
    * return {promise} Promise that contains the records
    */
   query(store, type, query) {
-    return new Ember.RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
         let modelName = type.modelName;
@@ -312,14 +313,14 @@ export default DS.Adapter.extend({
             cursor.continue();
           } else {
             db.close();
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }
         };
         
         request.onerror = function(event) {
           console.log('IndexedDB error: ' + event.target.errorCode);
           db.close();
-          Ember.run(null, reject, event);
+          run(null, reject, event);
         };
       });
     });

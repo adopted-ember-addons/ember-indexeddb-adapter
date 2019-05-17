@@ -1,29 +1,25 @@
-import Ember from 'ember';
+import { click, findAll, visit } from '@ember/test-helpers';
+import { run, later } from '@ember/runloop';
 import { module, test } from 'qunit';
-import startApp from '../../tests/helpers/start-app';
+import { setupApplicationTest } from 'ember-qunit';
 
-module('Acceptance | create record', {
-  beforeEach: function() {
-    this.application = startApp();
-  },
+module('Acceptance | create record', function(hooks) {
+  setupApplicationTest(hooks);
 
-  afterEach: function() {
-    Ember.run(this.application, 'destroy');
+  hooks.afterEach(function() {
     window.indexedDB.deleteDatabase('DummyDatabase');
-  }
-});
+  });
 
-test('create-record works', function(assert) {
-  visit('/posts');
+  test('create-record works', async function(assert) {
+    await visit('/posts');
 
-  click('button:contains("New Post")');
+    await click('button:contains("New Post")');
 
-  andThen(function() {
     // Give 500ms for all promises to finish as an ugly workaround to avoid
     // inFlight errors
-    Ember.run.later(() => {
-      assert.ok(find('#find-all a').length === 4);
-      assert.ok(find('#find-all a p:contains("New Dummy")').length > 0);
+    later(() => {
+      assert.ok(findAll('#find-all a').length === 4);
+      assert.ok(findAll('#find-all a p:contains("New Dummy")').length > 0);
     }, 500);
   });
 });
