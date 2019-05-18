@@ -1,6 +1,0 @@
-{{#with post as |post|}}
-  <p>{{post.title}}</p>
-  <p>{{post.body}}</p>
-{{/with}}
-<button {{action "updatePost"}}>Update Post</button>
-{{#link-to "posts"}}<div {{action "deletePost"}}>Delete Post</div>{{/link-to}}

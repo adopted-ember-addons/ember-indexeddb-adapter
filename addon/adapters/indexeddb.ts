@@ -1,74 +1,24 @@
-import { run } from '@ember/runloop';
-import { Promise } from 'rsvp';
-import DS from 'ember-data';
+import StoreService from "ember-data/store";
+import { run } from "@ember/runloop";
+import { Promise } from "rsvp";
+import DS from "ember-data";
+import uuid from "uuid";
 
-export default DS.Adapter.extend({
+export default class IndexedDBAdapter extends DS.Adapter {
   /**
    * Database name
    * @type {string}
    */
-  dbName: 'database',
+  dbName = "IDB.Adapter";
 
   /**
    * Database version number.
    * Whenever this number is greater than the version number of the existing
-   * database, this will update it's schema.
+   * database, this will update it's schema given that there are available
+   * migrations to run.
    * @type {number}
    */
-  version: 1,
-
-  /**
-   * Open IndexedDB and upgrade if necessary
-   */
-  init() {
-    let self = this;
-    let request = window.indexedDB.open(this.get('dbName'),this.get('version'));
-
-    request.onerror = function() {
-      console.log('Unable to open IndexedDB');
-    };
-
-    request.onupgradeneeded = function(event) {
-      let db = event.target.result;
-      
-      db.onerror = function(event) {
-        console.log('IndexedDB error: ' + event.target.errorCode);
-      };
-
-      self.get('models').forEach(model => {
-        if (!db.objectStoreNames.contains(model)) {
-          db.createObjectStore(model, {keyPath: 'id'});
-        }
-      });
-    };
-  },
-
-  /**
-   * Open IndexedDB
-   * return {promise} Promise that contains an IDBOpenDBRequest instance
-   */
-  openDatabase() {
-    return new Promise((resolve, reject) => {
-      let request = window.indexedDB.open(this.get('dbName'));
-
-      request.onerror = function(event) {
-        console.log('Unable to open IndexedDB');
-        run(null, reject, event);
-      };
-
-      request.onsuccess = function(event) {
-        run(null, resolve, event.target.result);
-      };
-    });
-  },
-
-  /**
-   * Generate a random number for ID
-   * return {string} Generated ID
-   */
-  generateIdForRecord() {
-    return Math.random().toString(32).slice(2).substr(0, 5);
-  },
+  version = 1;
 
   /**
    * Create new record
@@ -77,13 +27,14 @@ export default DS.Adapter.extend({
    * param {object} snapshot DS.Snapshot
    * return {promise} Promise that contains the record
    */
-  createRecord(store, type, snapshot) {
+  createRecord(store: StoreService, type: string, snapshot) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
-        let data = this.serialize(snapshot, {includeId: true});
+        let data = this.serialize(snapshot, { includeId: true });
         let modelName = type.modelName;
-        let objectStore = db.transaction([modelName], 'readwrite').
-            objectStore(modelName);
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
         let request = objectStore.add(data);
 
         request.onsuccess = function() {
@@ -92,13 +43,13 @@ export default DS.Adapter.extend({
         };
 
         request.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
-  },
+  }
 
   /**
    * Find record by it's ID
@@ -107,7 +58,7 @@ export default DS.Adapter.extend({
    * param {string} id ID
    * return {promise} Promise that contains the record
    */
-  findRecord(store, type, id) {
+  findRecord(store: StoreService, type: string, id: string) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
@@ -120,13 +71,13 @@ export default DS.Adapter.extend({
         };
 
         request.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
-  },
+  }
 
   /**
    * Find all records
@@ -134,7 +85,7 @@ export default DS.Adapter.extend({
    * param {object} type DS.Model
    * return {promise} Promise that contains the record
    */
-  findAll(store, type) {
+  findAll(store: StoreService, type: string) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
@@ -152,15 +103,15 @@ export default DS.Adapter.extend({
             run(null, resolve, data);
           }
         };
-        
+
         request.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
-  },
+  }
 
   /**
    * Update record
@@ -169,13 +120,14 @@ export default DS.Adapter.extend({
    * param {object} snapshot DS.Snapshot
    * return {promise} Promise that contains the record
    */
-  updateRecord(store, type, snapshot) {
+  updateRecord(store: StoreService, type: string, snapshot) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
-        let data = this.serialize(snapshot, {includeId: true});
+        let data = this.serialize(snapshot, { includeId: true });
         let modelName = type.modelName;
-        let objectStore = db.transaction([modelName], 'readwrite').
-            objectStore(modelName);
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
         let request = objectStore.get(snapshot.id);
 
         request.onsuccess = function() {
@@ -187,14 +139,14 @@ export default DS.Adapter.extend({
           };
 
           requestUpdate.onerror = function(event) {
-            console.log('IndexedDB error: ' + event.target.errorCode);
+            console.log("IndexedDB error: " + event.target.errorCode);
             db.close();
             run(null, reject, event);
           };
         };
       });
     });
-  },
+  }
 
   /**
    * Delete record
@@ -203,13 +155,14 @@ export default DS.Adapter.extend({
    * param {object} snapshot DS.Snapshot
    * return {promise} Promise that contains the record
    */
-  deleteRecord(store, type, snapshot) {
+  deleteRecord(store: StoreService, type: string, snapshot) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
-        let data = this.serialize(snapshot, {includeId: true});
+        let data = this.serialize(snapshot, { includeId: true });
         let modelName = type.modelName;
-        let objectStore = db.transaction([modelName], 'readwrite').
-            objectStore(modelName);
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
         let request = objectStore.delete(snapshot.id);
 
         request.onsuccess = function() {
@@ -218,13 +171,13 @@ export default DS.Adapter.extend({
         };
 
         request.onerror = function() {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
-  },
+  }
 
   /**
    * TODO: See if using index is feasible
@@ -235,7 +188,7 @@ export default DS.Adapter.extend({
    * param {object} query Query object
    * return {promise} Promise that contains the record
    */
-  queryRecord(store, type, query) {
+  queryRecord(store: StoreService, type: string, query) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
@@ -266,15 +219,15 @@ export default DS.Adapter.extend({
             run(null, resolve, null);
           }
         };
-        
+
         request.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
-  },
+  }
 
   /**
    * TODO: See if using index is feasible
@@ -285,7 +238,7 @@ export default DS.Adapter.extend({
    * param {object} query Query object
    * return {promise} Promise that contains the records
    */
-  query(store, type, query) {
+  query(store: StoreService, type: string, query: any) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
@@ -316,13 +269,44 @@ export default DS.Adapter.extend({
             run(null, resolve, data);
           }
         };
-        
+
         request.onerror = function(event) {
-          console.log('IndexedDB error: ' + event.target.errorCode);
+          console.log("IndexedDB error: " + event.target.errorCode);
           db.close();
           run(null, reject, event);
         };
       });
     });
   }
-});
+
+  /**
+   * Open IndexedDB
+   * return {promise} Promise that contains an IDBOpenDBRequest instance
+   */
+  private openDatabase() {
+    return new Promise<IDBOpenDBRequest>((resolve, reject) => {
+      const openRequest = window.indexedDB.open(this.dbName);
+
+      openRequest.onerror = reject;
+      openRequest.onupgradeneeded = this.upgradeDatabase;
+      openRequest.onsuccess = function(event: any) {
+        resolve(event.target.result);
+      };
+    });
+  }
+
+  private upgradeDatabase(event: any) {
+    const db = event.target.result;
+    db.createObjectStore("table-name", {
+      autoIncrement: true
+    });
+    // TODO: find a way to run migrations.
+    //       probably need to track versions
+    //       and track which migrations have ran.
+    console.info("upgradeDatabase not implemented");
+  }
+
+  private getTable() {
+    // is this how idb works?
+  }
+}

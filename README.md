@@ -54,6 +54,19 @@ export default IndexedDBAdapter.extend({
 });
 ```
 
+and the serializer must be this:
+```ts
+import DS from 'ember-data';
+
+export default DS.JSONAPISerializer.extend({
+  // the reason we use override this is so that the attribute keys
+  // don't become hyphenated
+  keyForAttribute(key: string) {
+    return key;
+  },
+});
+```
+
 Contributing
 ------------------------------------------------------------------------------
 
