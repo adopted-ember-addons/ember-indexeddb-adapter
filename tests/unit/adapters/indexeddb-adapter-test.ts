@@ -109,16 +109,21 @@ module("Unit | Adapter | indexeddb adapter", function(hooks) {
           assert.expect(3);
 
           let storedPost = await store.findRecord("post", post.id);
-          let comments = storedPost.comments;
+          assert.equal(storedPost.comments.length, 2, "the post has two comments");
 
-          assert.equal(comments.length, 2, "the post has two comments");
+          let [firstId, secondId] = storedPost.comments.map(c => c.id);
+
+          let comment1 = await store.findRecord('comment', firstId);
+          let comment2 = await store.findRecord('comment', secondId);
+
+
           assert.equal(
-            comments[0].post,
+            comment1.post,
             storedPost,
             "the comment belongsTo a post"
           );
           assert.equal(
-            comments[1].post,
+            comment2.post,
             storedPost,
             "the comment belongsTo a post"
           );
