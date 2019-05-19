@@ -4,12 +4,20 @@ import { Promise } from "rsvp";
 import DS from "ember-data";
 import uuid from "uuid";
 
+// NOTE: comments taken from:
+// https://github.com/emberjs/data/blob/master/packages/adapter/addon/adapter.js
 export default class IndexedDBAdapter extends DS.Adapter {
   /**
    * Database name
    * @type {string}
    */
   dbName = "IDB.Adapter";
+
+  // defaults from DS.Adapter
+  // coalesceFindRequests: true;
+  // shouldBackgroundReloadRecord: true
+  // shouldReloadAll: true
+
 
   /**
    * Database version number.
@@ -20,271 +28,290 @@ export default class IndexedDBAdapter extends DS.Adapter {
    */
   version = 1;
 
-  // /**
-  //  * Create new record
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model class of the record
-  //  * param {object} snapshot DS.Snapshot
-  //  * return {promise} Promise that contains the record
-  //  */
-  // createRecord(store: StoreService, type: string, snapshot) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let data = this.serialize(snapshot, { includeId: true });
-  //       let modelName = type.modelName;
-  //       let objectStore = db
-  //         .transaction([modelName], "readwrite")
-  //         .objectStore(modelName);
-  //       let request = objectStore.add(data);
+  /**
+    @method createRecord
+    @param {DS.Store} store
+    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Snapshot} snapshot
+    @return {Promise} promise
+   */
+  createRecord(
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
+  ) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = this.serialize(snapshot, { includeId: true });
+        let modelName = type.modelName;
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
 
-  //       request.onsuccess = function() {
-  //         db.close();
-  //         run(null, resolve, data);
-  //       };
+        data.id = uuid();
 
-  //       request.onerror = function(event) {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+        let request = objectStore.add(data);
 
-  // /**
-  //  * Find record by it's ID
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model
-  //  * param {string} id ID
-  //  * return {promise} Promise that contains the record
-  //  */
-  // findRecord(store: StoreService, type: string, id: string) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let modelName = type.modelName;
-  //       let objectStore = db.transaction([modelName]).objectStore(modelName);
-  //       let request = objectStore.get(id);
+        request.onsuccess = function() {
+          db.close();
+          run(null, resolve, data);
+        };
 
-  //       request.onsuccess = function() {
-  //         db.close();
-  //         run(null, resolve, request.result);
-  //       };
+        request.onerror = function(event) {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
 
-  //       request.onerror = function(event) {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+  /**
+    @method findRecord
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {String} id
+    @param {DS.Snapshot} snapshot
+    @return {Promise} promise
+   */
+  findRecord(store: StoreService, type: typeof DS.Model, id: string) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.get(id);
 
-  // /**
-  //  * Find all records
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model
-  //  * return {promise} Promise that contains the record
-  //  */
-  // findAll(store: StoreService, type: string) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let data = [];
-  //       let modelName = type.modelName;
-  //       let objectStore = db.transaction([modelName]).objectStore(modelName);
-  //       let request = objectStore.openCursor();
+        request.onsuccess = function() {
+          db.close();
+          run(null, resolve, request.result);
+        };
 
-  //       request.onsuccess = function(event) {
-  //         let cursor = event.target.result;
+        request.onerror = function(event) {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
 
-  //         if (cursor) {
-  //           data.push(cursor.value);
-  //           cursor.continue();
-  //         } else {
-  //           run(null, resolve, data);
-  //         }
-  //       };
+  /**
+    @method findAll
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {String} sinceToken
+    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @return {Promise} promise
+   */
+  findAll(store: StoreService, type: typeof DS.Model) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = [];
+        let modelName = type.modelName;
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.openCursor();
 
-  //       request.onerror = function(event) {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+        request.onsuccess = function(event) {
+          let cursor = event.target.result;
 
-  // /**
-  //  * Update record
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model class of the record
-  //  * param {object} snapshot DS.Snapshot
-  //  * return {promise} Promise that contains the record
-  //  */
-  // updateRecord(store: StoreService, type: string, snapshot) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let data = this.serialize(snapshot, { includeId: true });
-  //       let modelName = type.modelName;
-  //       let objectStore = db
-  //         .transaction([modelName], "readwrite")
-  //         .objectStore(modelName);
-  //       let request = objectStore.get(snapshot.id);
+          if (cursor) {
+            data.push(cursor.value);
+            cursor.continue();
+          } else {
+            run(null, resolve, data);
+          }
+        };
 
-  //       request.onsuccess = function() {
-  //         let requestUpdate = objectStore.put(data);
+        request.onerror = function(event) {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
 
-  //         requestUpdate.onsuccess = function() {
-  //           db.close();
-  //           run(null, resolve, data);
-  //         };
+  /**
+    @method updateRecord
+    @param {DS.Store} store
+    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Snapshot} snapshot
+    @return {Promise} promise
+   */
+  updateRecord(
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
+  ) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = this.serialize(snapshot, { includeId: true });
+        let modelName = type.modelName;
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
+        let request = objectStore.get(snapshot.id);
 
-  //         requestUpdate.onerror = function(event) {
-  //           console.log("IndexedDB error: " + event.target.errorCode);
-  //           db.close();
-  //           run(null, reject, event);
-  //         };
-  //       };
-  //     });
-  //   });
-  // }
+        request.onsuccess = function() {
+          let requestUpdate = objectStore.put(data);
 
-  // /**
-  //  * Delete record
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model class of the record
-  //  * param {object} snapshot DS.Snapshot
-  //  * return {promise} Promise that contains the record
-  //  */
-  // deleteRecord(store: StoreService, type: string, snapshot) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let data = this.serialize(snapshot, { includeId: true });
-  //       let modelName = type.modelName;
-  //       let objectStore = db
-  //         .transaction([modelName], "readwrite")
-  //         .objectStore(modelName);
-  //       let request = objectStore.delete(snapshot.id);
+          requestUpdate.onsuccess = function() {
+            db.close();
+            run(null, resolve, data);
+          };
 
-  //       request.onsuccess = function() {
-  //         db.close();
-  //         run(null, resolve, data);
-  //       };
+          requestUpdate.onerror = function(event) {
+            console.log("IndexedDB error: " + event.target.errorCode);
+            db.close();
+            run(null, reject, event);
+          };
+        };
+      });
+    });
+  }
 
-  //       request.onerror = function() {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+  /**
+    @method deleteRecord
+    @param {DS.Store} store
+    @param {DS.Model} type   the DS.Model class of the record
+    @param {DS.Snapshot} snapshot
+    @return {Promise} promise
+   */
+  deleteRecord(
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
+  ) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = this.serialize(snapshot, { includeId: true });
+        let modelName = type.modelName;
+        let objectStore = db
+          .transaction([modelName], "readwrite")
+          .objectStore(modelName);
+        let request = objectStore.delete(snapshot.id);
 
-  // /**
-  //  * TODO: See if using index is feasible
-  //  *
-  //  * Find a record that matches the query
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model
-  //  * param {object} query Query object
-  //  * return {promise} Promise that contains the record
-  //  */
-  // queryRecord(store: StoreService, type: string, query) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let modelName = type.modelName;
-  //       let queryKeys = Object.keys(query);
-  //       let objectStore = db.transaction([modelName]).objectStore(modelName);
-  //       let request = objectStore.openCursor();
+        request.onsuccess = function() {
+          db.close();
+          run(null, resolve, data);
+        };
 
-  //       request.onsuccess = function(event) {
-  //         let cursor = event.target.result;
+        request.onerror = function() {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
 
-  //         if (cursor) {
-  //           let queryKeyMatchCount = 0;
+  /**
+    @method queryRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @return {Promise} promise
+   */
+  queryRecord(store: StoreService, type: typeof DS.Model, query: object) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let modelName = type.modelName;
+        let queryKeys = Object.keys(query);
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.openCursor();
 
-  //           queryKeys.forEach(key => {
-  //             if (cursor.value[key] === query[key]) {
-  //               queryKeyMatchCount++;
-  //             }
-  //           });
+        request.onsuccess = function(event) {
+          let cursor = event.target.result;
 
-  //           if (queryKeyMatchCount === queryKeys.length) {
-  //             db.close();
-  //             run(null, resolve, cursor.value);
-  //           } else {
-  //             cursor.continue();
-  //           }
-  //         } else {
-  //           db.close();
-  //           run(null, resolve, null);
-  //         }
-  //       };
+          if (cursor) {
+            let queryKeyMatchCount = 0;
 
-  //       request.onerror = function(event) {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+            queryKeys.forEach(key => {
+              if (cursor.value[key] === query[key]) {
+                queryKeyMatchCount++;
+              }
+            });
 
-  // /**
-  //  * TODO: See if using index is feasible
-  //  *
-  //  * Find records that matches the query
-  //  * param {object} store DS.Store
-  //  * param {object} type DS.Model
-  //  * param {object} query Query object
-  //  * return {promise} Promise that contains the records
-  //  */
-  // query(store: StoreService, type: string, query: any) {
-  //   return new Promise((resolve, reject) => {
-  //     this.openDatabase().then(db => {
-  //       let data = [];
-  //       let modelName = type.modelName;
-  //       let queryKeys = Object.keys(query);
-  //       let objectStore = db.transaction([modelName]).objectStore(modelName);
-  //       let request = objectStore.openCursor();
+            if (queryKeyMatchCount === queryKeys.length) {
+              db.close();
+              run(null, resolve, cursor.value);
+            } else {
+              cursor.continue();
+            }
+          } else {
+            db.close();
+            run(null, resolve, null);
+          }
+        };
 
-  //       request.onsuccess = function(event) {
-  //         let cursor = event.target.result;
+        request.onerror = function(event) {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
 
-  //         if (cursor) {
-  //           let queryKeyMatchCount = 0;
+  /**
+    @method query
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {Object} query
+    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @return {Promise} promise
+   */
+  query(store: StoreService, type: typeof DS.Model, query: object) {
+    return new Promise((resolve, reject) => {
+      this.openDatabase().then(db => {
+        let data = [];
+        let modelName = type.modelName;
+        let queryKeys = Object.keys(query);
+        let objectStore = db.transaction([modelName]).objectStore(modelName);
+        let request = objectStore.openCursor();
 
-  //           queryKeys.forEach(key => {
-  //             if (cursor.value[key] === query[key]) {
-  //               queryKeyMatchCount++;
-  //             }
-  //           });
+        request.onsuccess = function(event) {
+          let cursor = event.target.result;
 
-  //           if (queryKeyMatchCount === queryKeys.length) {
-  //             data.push(cursor.value);
-  //           }
+          if (cursor) {
+            let queryKeyMatchCount = 0;
 
-  //           cursor.continue();
-  //         } else {
-  //           db.close();
-  //           run(null, resolve, data);
-  //         }
-  //       };
+            queryKeys.forEach(key => {
+              if (cursor.value[key] === query[key]) {
+                queryKeyMatchCount++;
+              }
+            });
 
-  //       request.onerror = function(event) {
-  //         console.log("IndexedDB error: " + event.target.errorCode);
-  //         db.close();
-  //         run(null, reject, event);
-  //       };
-  //     });
-  //   });
-  // }
+            if (queryKeyMatchCount === queryKeys.length) {
+              data.push(cursor.value);
+            }
+
+            cursor.continue();
+          } else {
+            db.close();
+            run(null, resolve, data);
+          }
+        };
+
+        request.onerror = function(event) {
+          console.log("IndexedDB error: " + event.target.errorCode);
+          db.close();
+          run(null, reject, event);
+        };
+      });
+    });
+  }
+
+  generateIdForRecord() {
+    return uuid();
+  }
 
   /**
    * Open IndexedDB
    * return {promise} Promise that contains an IDBOpenDBRequest instance
    */
   private openDatabase() {
-    return new Promise<IDBOpenDBRequest>((resolve, reject) => {
+    return new Promise<IDBDatabase>((resolve, reject) => {
       const openRequest = window.indexedDB.open(this.dbName);
 
       openRequest.onerror = reject;

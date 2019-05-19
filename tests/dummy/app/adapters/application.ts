@@ -1,5 +1,3 @@
-import IndexedDBAdapter from 'ember-indexeddb-adapter/adapters/indexeddb';
+import { IndexedDBAdapter } from "ember-indexeddb-adapter";
 
-export default class Application extends IndexedDBAdapter {
-
-}
+export default class Application extends IndexedDBAdapter {}
