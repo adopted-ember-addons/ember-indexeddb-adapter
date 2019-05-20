@@ -26,7 +26,7 @@
   "scripts": {
     "build": "ember build",
     "lint:hbs": "ember-template-lint .",
-    "lint:js": "eslint .",
+    "lint:js": "yarn eslint .",
     "start": "ember serve",
     "test": "ember test",
     "test:all": "ember try:each",
@@ -73,6 +73,7 @@
     "ember-source": "~3.10.0",
     "ember-source-channel-url": "^2.0.1",
     "ember-try": "^1.0.0",
+    "eslint": "^5.16.0",
     "eslint-plugin-ember": "^6.2.0",
     "eslint-plugin-node": "^9.0.1",
     "loader.js": "^4.7.0",
