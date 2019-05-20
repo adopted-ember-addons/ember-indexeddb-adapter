@@ -1,6 +1,7 @@
 import { run } from "@ember/runloop";
 import { Promise } from "rsvp";
 import DS from "ember-data";
+import StoreService from "ember-data/store";
 import uuid from "uuid";
 
 // NOTE: comments taken from:
@@ -12,7 +13,6 @@ export default class IndexedDBAdapter extends DS.Adapter {
    */
   dbName = "IDB.Adapter";
 
-
   /**
    * The list of models to use in the indexedDb
    * @type {Array<string>}
@@ -23,7 +23,6 @@ export default class IndexedDBAdapter extends DS.Adapter {
   // coalesceFindRequests: true;
   // shouldBackgroundReloadRecord: true
   // shouldReloadAll: true
-
 
   /**
    * Database version number.
@@ -42,32 +41,34 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @return {Promise} promise
    */
   createRecord(
-    store,
-    type,
-    snapshot
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
   ) {
     return new Promise((resolve, reject) => {
-      this.openDatabase().then(db => {
-        let data = this.serialize(snapshot, { includeId: true });
-        let modelName = type.modelName;
+      this.openDatabase()
+        .then(db => {
+          let data = this.serialize(snapshot, { includeId: true });
+          let modelName = type.modelName;
 
-        let objectStore = db
-          .transaction([modelName], "readwrite")
-          .objectStore(modelName);
+          let objectStore = db
+            .transaction([modelName], "readwrite")
+            .objectStore(modelName);
 
-        let request = objectStore.add(data);
+          let request = objectStore.add(data);
 
-        request.onsuccess = function() {
-          db.close();
-          resolve(data);
-        };
+          request.onsuccess = function() {
+            db.close();
+            resolve(data);
+          };
 
-        request.onerror = function(event) {
-          console.log("IndexedDB error: " + event.target.errorCode);
-          db.close();
-          reject(event);
-        };
-      }).catch(reject);
+          request.onerror = function(event) {
+            console.log("IndexedDB error: " + event.target.errorCode);
+            db.close();
+            reject(event);
+          };
+        })
+        .catch(reject);
     });
   }
 
@@ -79,7 +80,7 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
    */
-  findRecord(store, type, id) {
+  findRecord(store: StoreService, type: typeof DS.Model, id: string | number) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
@@ -108,7 +109,7 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
    */
-  findAll(store, type) {
+  findAll(store: StoreService, type: typeof DS.Model) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
@@ -144,9 +145,9 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @return {Promise} promise
    */
   updateRecord(
-    store,
-    type,
-    snapshot
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
   ) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
@@ -183,9 +184,9 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @return {Promise} promise
    */
   deleteRecord(
-    store,
-    type,
-    snapshot
+    store: StoreService,
+    type: typeof DS.Model,
+    snapshot: DS.Snapshot
   ) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
@@ -217,7 +218,7 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @param {Object} query
     @return {Promise} promise
    */
-  queryRecord(store, type, query) {
+  queryRecord(store: StoreService, type: typeof DS.Model, query: object) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let modelName = type.modelName;
@@ -266,7 +267,7 @@ export default class IndexedDBAdapter extends DS.Adapter {
     @param {DS.AdapterPopulatedRecordArray} recordArray
     @return {Promise} promise
    */
-  query(store, type, query) {
+  query(store: StoreService, type: typeof DS.Model, query: object) {
     return new Promise((resolve, reject) => {
       this.openDatabase().then(db => {
         let data = [];
@@ -316,20 +317,21 @@ export default class IndexedDBAdapter extends DS.Adapter {
    * return {promise} Promise that contains an IDBOpenDBRequest instance
    */
   openDatabase() {
-    return new Promise((resolve, reject) => {
+    return new Promise<IDBDatabase>((resolve, reject) => {
       // TODO: if we voluntarily want to run a migration,
       //       open takes a second parameter that is the version number
       const openRequest = window.indexedDB.open(this.dbName);
 
       openRequest.onerror = reject;
-      openRequest.onupgradeneeded = (event) => this.upgradeDatabase(this.models, event);
-      openRequest.onsuccess = function(event) {
+      openRequest.onupgradeneeded = event =>
+        this.upgradeDatabase(this.models, event);
+      openRequest.onsuccess = function(event: any) {
         resolve(event.target.result);
       };
     });
   }
 
-  upgradeDatabase(models, event /* : IDBVersionChangeEvent */) {
+  upgradeDatabase(models: string[], event: IDBVersionChangeEvent) {
     const { oldVersion, newVersion } = event;
     const db = event.target.result;
 
@@ -339,17 +341,20 @@ export default class IndexedDBAdapter extends DS.Adapter {
     // NOTE: may need to cache known models to detect when the schema changes
     //       and ensure that there is an object store for each model
     //    OOOORRRr, we skip this for now, and use a user-specified list
-    models.forEach(modelName => this.ensureObjectStore(db, modelName))
+    models.forEach(modelName => this.ensureObjectStore(db, modelName));
 
     // TODO: find a way to run migrations.
     //       probably need to track versions
     //       and track which migrations have ran.
-    console.info(`upgradeDatabase not implemented v(${oldVersion} -> ${newVersion})`, event);
+    console.info(
+      `upgradeDatabase not implemented v(${oldVersion} -> ${newVersion})`,
+      event
+    );
   }
 
   ensureObjectStore(db, name) {
     if (!db.objectStoreNames.contains(name)) {
-      db.createObjectStore(name, { keyPath: 'id' });
+      db.createObjectStore(name, { keyPath: "id" });
     }
   }
 }
